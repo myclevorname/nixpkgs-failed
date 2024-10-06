@@ -26,7 +26,11 @@ I could use the HTML page, but that isn't as simple as calling an API and decodi
 ## TODO
 
 [X] Get the latest evaluation
+
 [X] Get a failing build
+
 [ ] Print metadata about it
+
 [ ] Make it pretty
+
 [ ] CLI options

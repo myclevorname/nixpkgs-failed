@@ -341,6 +341,7 @@ dependencies = [
 name = "nixpkgs-failed"
 version = "0.1.0"
 dependencies = [
+ "rand",
  "reqwest",
  "serde",
 ]

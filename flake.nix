@@ -9,11 +9,12 @@
       let pkgs = nixpkgs.legacyPackages.${system}; in rec
       {
         packages = {
-          default = pkgs.pkgsStatic.rustPlatform.buildRustPackage {
+          default = pkgs.rustPlatform.buildRustPackage {
             name = "nixpkgs-failed";
             src = self;
-            cargoHash = "sha256-48mVtnaJI1QYFHK70DdALRLufHnogZZ3HPhJTdnOfaE=";
+            cargoHash = "sha256-SwwbYXiP8O4l/WM3GIbscVbexEtyvUmN7Xv/DNdWfLs=";
             doCheck = false;
+            meta.mainProgram = "nixpkgs-failed";
           };
         };
         devShells.default = packages.default.overrideAttrs (final: old: {
