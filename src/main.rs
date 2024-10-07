@@ -24,6 +24,7 @@ pub struct Build {
     buildstatus: u64,
     //  finished: u8,
     nixname: String,
+    system: String,
 }
 
 fn get_url<T>(url: &str) -> Result<T, reqwest::Error>
@@ -57,7 +58,7 @@ fn is_failing_build(build: &Build) -> bool {
     match build.buildstatus {
         0 => false,   // bsSuccess
         1 => true,    // bsFailed
-        2 => true,    // bsDepFailed
+        2 => false,   // bsDepFailed    // The dependency failed, so I should fix said dependency.
         3 => true,    // bsAborted
         4 => false,   // bsCancelled
         6 => true,    // bsFailedWithOutput
@@ -78,6 +79,7 @@ fn get_failing_builds(builds: &[u64]) -> impl Iterator<Item = Build> + '_ {
         .iter()
         .flat_map(|x| get_url::<Build>(&format!("/build/{x}")))
         .filter(is_failing_build)
+        .filter(|x| x.system == String::from("x86_64-linux"))
 }
 
 fn main() {

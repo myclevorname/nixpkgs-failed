@@ -339,7 +339,7 @@ dependencies = [
 
 [[package]]
 name = "nixpkgs-failed"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
  "rand",
  "reqwest",

@@ -12,7 +12,10 @@
           default = pkgs.rustPlatform.buildRustPackage {
             name = "nixpkgs-failed";
             src = self;
-            cargoHash = "sha256-SwwbYXiP8O4l/WM3GIbscVbexEtyvUmN7Xv/DNdWfLs=";
+            cargoHash = "sha256-gMKARLNvd52yWzA4tUAFAp85SZtMo/a0uF+jpnEArxU=";
+            patchPhase = ''
+              substituteInPlace src/main.rs --replace-fail x86_64-linux "${system}"
+            '';
             doCheck = false;
             meta.mainProgram = "nixpkgs-failed";
           };
