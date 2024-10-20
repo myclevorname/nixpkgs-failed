@@ -1,6 +1,6 @@
 # nixpkgs-failed
 
-This program gets a random failing package from [nixos:trunk-combined](https://hydra.nixos.org/jobset/nixos/trunk-combined/evals).
+This program gets a random failing package from [nixpkgs:trunk](https://hydra.nixos.org/jobset/nixpkgs/trunk/evals).
 It is currently a work-in-progress.
 
 ## Build Instructions

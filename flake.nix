@@ -6,23 +6,24 @@
 
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
-      let pkgs = nixpkgs.legacyPackages.${system}; in rec
-      {
-        packages = {
-          default = pkgs.rustPlatform.buildRustPackage {
-            name = "nixpkgs-failed";
-            src = self;
-            cargoHash = "sha256-gMKARLNvd52yWzA4tUAFAp85SZtMo/a0uF+jpnEArxU=";
-            patchPhase = ''
-              substituteInPlace src/main.rs --replace-fail x86_64-linux "${system}"
-            '';
-            doCheck = false;
-            meta.mainProgram = "nixpkgs-failed";
-          };
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+        commonAttrs = {
+          name = "nixpkgs-failed";
+          src = self;
+          cargoHash = "sha256-0Wn1WZLettqEsVd9rz+/WWro3tOo6D8gaNVKXMH0ao0=";
+          patchPhase = ''
+            substituteInPlace src/main.rs --replace-fail x86_64-linux "${system}"
+          '';
+          doCheck = false;
+          meta.mainProgram = "nixpkgs-failed";
         };
-        devShells.default = packages.default.overrideAttrs (final: old: {
-          nativeBuildInputs = old.nativeBuildInputs ++ (with pkgs; [ clippy rustfmt ]);
+      in rec {
+        packages.default =
+          pkgs.pkgsStatic.rustPlatform.buildRustPackage commonAttrs;
+        devShells.default = pkgs.rustPlatform.buildRustPackage (commonAttrs // {
+          nativeBuildInputs = with pkgs; [ clippy rustfmt cargo-audit ];
         });
-      }
-    );
+        formatter = pkgs.nixfmt-classic;
+      });
 }

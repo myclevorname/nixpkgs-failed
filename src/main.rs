@@ -1,8 +1,27 @@
+use num_derive::{FromPrimitive, ToPrimitive};
+use num_traits::FromPrimitive;
 use rand::{seq::SliceRandom, thread_rng};
 use reqwest::blocking::Client;
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use std::time::Duration;
+
+#[derive(Debug, FromPrimitive, ToPrimitive)]
+pub enum BuildStatus {
+    Success = 0,
+    Failed = 1,
+    DependencyFailed = 2,
+    Aborted = 3,
+    Cancelled = 4,
+    FailedWithOutput = 6,
+    TimedOut = 7,
+    CachedFailure = 8,
+    Unsupported = 9,
+    LogLimitExceeded = 10,
+    NarSizeLimitExceeded = 11,
+    NotDeterministic = 12,
+    Busy = 100,
+}
 
 // Change these!
 const HYDRA_URL: &str = "https://hydra.nixos.org";
@@ -55,21 +74,12 @@ fn get_latest_evaluation(
 
 // See https://github.com/NixOS/hydra/blob/95003f2eb503f71979856470c7caea946f1ae7f0/src/hydra-queue-runner/state.hh#L53
 fn is_failing_build(build: &Build) -> bool {
-    match build.buildstatus {
-        0 => false,   // bsSuccess
-        1 => true,    // bsFailed
-        2 => false,   // bsDepFailed    // The dependency failed, so I should fix said dependency.
-        3 => true,    // bsAborted
-        4 => false,   // bsCancelled
-        6 => true,    // bsFailedWithOutput
-        7 => true,    // bsTimedOut
-        8 => true,    // bsCachedFailure
-        9 => true,    // bsUnsupported
-        10 => true,   // bsLogLimitExceeded
-        11 => true,   // bsNarSizeLimitExceeded
-        12 => true,   // bsNotDeterministic
-        100 => false, // bsBusy
-        _ => panic!("Unknown build status found"),
+    use crate::BuildStatus::*;
+    let status = BuildStatus::from_u64(build.buildstatus).unwrap();
+    match status {
+        Success | Busy | DependencyFailed | Cancelled | Unsupported | Aborted => false,
+        Failed | FailedWithOutput | TimedOut | CachedFailure | NotDeterministic
+        | LogLimitExceeded | NarSizeLimitExceeded => true,
     }
 }
 
@@ -79,7 +89,7 @@ fn get_failing_builds(builds: &[u64]) -> impl Iterator<Item = Build> + '_ {
         .iter()
         .flat_map(|x| get_url::<Build>(&format!("/build/{x}")))
         .filter(is_failing_build)
-        .filter(|x| x.system == String::from("x86_64-linux"))
+        .filter(|x| x.system == *"x86_64-linux")
 }
 
 fn main() {
